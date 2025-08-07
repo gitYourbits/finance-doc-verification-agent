@@ -1,0 +1,604 @@
+{
+  "name": "Client Onboarding & KYC Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kyc-onboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "55bc9715-a25e-4575-93ff-35c95c492771",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        160
+      ],
+      "webhookId": "kyc-client-onboard"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Validate PAN format and basic client data\nconst clientData = $json.body || $json;\n\n// PAN validation regex\nconst panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;\n\n// Aadhaar validation regex (12 digits)\nconst aadhaarRegex = /^[0-9]{12}$/;\n\n// Email validation\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\n// Mobile validation (Indian format)\nconst mobileRegex = /^[6-9]\\d{9}$/;\n\nconst validationResults = {\n  client_name: clientData.client_name || '',\n  mobile: clientData.mobile || '',\n  email: clientData.email || '',\n  pan_number: (clientData.pan_number || '').toUpperCase(),\n  aadhaar_number: clientData.aadhaar_number || '',\n  pan_file_url: clientData.pan_file_url || '',\n  aadhaar_file_url: clientData.aadhaar_file_url || '',\n  \n  // Validation flags\n  pan_format_valid: panRegex.test((clientData.pan_number || '').toUpperCase()),\n  aadhaar_format_valid: aadhaarRegex.test(clientData.aadhaar_number || ''),\n  email_valid: emailRegex.test(clientData.email || ''),\n  mobile_valid: mobileRegex.test(clientData.mobile || ''),\n  \n  // Overall validation\n  basic_validation_passed: false,\n  timestamp: new Date().toISOString(),\n  workflow_id: $workflow.id + '_' + Date.now()\n};\n\n// Check if all basic validations pass\nvalidationResults.basic_validation_passed = \n  validationResults.pan_format_valid && \n  validationResults.aadhaar_format_valid && \n  validationResults.email_valid && \n  validationResults.mobile_valid && \n  validationResults.client_name.length > 0;\n\nreturn { json: validationResults };"
+      },
+      "id": "4d848f16-dc61-4012-a597-5da92103368f",
+      "name": "Validate Client Inputs",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.basic_validation_passed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "e66d1272-f6b7-4ffd-9647-e5d6b684f6a5",
+      "name": "Validation Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{$json.client_name}}_PAN_{{$json.workflow_id}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "3b89d708-e016-48fb-9736-cf66d41ed636",
+      "name": "Upload PAN to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YJtAfh9F1wc9Kqjz",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{$json.client_name}}_AADHAAR_{{$json.workflow_id}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "4cc320c0-ba12-4d28-b9d2-827cc258cb13",
+      "name": "Upload Aadhaar to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        0,
+        320
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YJtAfh9F1wc9Kqjz",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mindee.net/v1/products/mindee/indian_passport/v1/predict",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mindeeApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token YOUR_MINDEE_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "document",
+              "value": "={{$json.pan_file_url}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ab6fb930-7f1c-462b-b685-e89499e49cc5",
+      "name": "OCR PAN Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mindee.net/v1/products/mindee/ind_aadhaar/v1/predict",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mindeeApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Token YOUR_MINDEE_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "document",
+              "value": "={{$json.aadhaar_file_url}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aff19f08-b9f5-4423-b6cc-54342d92fe9a",
+      "name": "OCR Aadhaar Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process OCR results and compare with user input\nconst panOcrData = $input.first().json;\nconst aadhaarOcrData = $input.last().json;\nconst clientData = $('Validate Client Inputs').first().json;\n\n// Extract PAN details from OCR\nlet panFromOcr = '';\nlet nameFromPan = '';\ntry {\n  if (panOcrData.document && panOcrData.document.inference) {\n    panFromOcr = panOcrData.document.inference.prediction.id_number?.value || '';\n    nameFromPan = panOcrData.document.inference.prediction.given_names?.value || '';\n  }\n} catch (error) {\n  console.log('PAN OCR parsing error:', error);\n}\n\n// Extract Aadhaar details from OCR\nlet aadhaarFromOcr = '';\nlet nameFromAadhaar = '';\nlet dobFromAadhaar = '';\ntry {\n  if (aadhaarOcrData.document && aadhaarOcrData.document.inference) {\n    aadhaarFromOcr = aadhaarOcrData.document.inference.prediction.id_number?.value || '';\n    nameFromAadhaar = aadhaarOcrData.document.inference.prediction.given_names?.value || '';\n    dobFromAadhaar = aadhaarOcrData.document.inference.prediction.birth_date?.value || '';\n  }\n} catch (error) {\n  console.log('Aadhaar OCR parsing error:', error);\n}\n\n// Compare OCR results with user input\nconst ocrValidation = {\n  ...clientData,\n  \n  // OCR extracted data\n  pan_from_ocr: panFromOcr,\n  name_from_pan: nameFromPan,\n  aadhaar_from_ocr: aadhaarFromOcr,\n  name_from_aadhaar: nameFromAadhaar,\n  dob_from_aadhaar: dobFromAadhaar,\n  \n  // Validation flags\n  pan_ocr_match: panFromOcr.toUpperCase() === clientData.pan_number.toUpperCase(),\n  aadhaar_ocr_match: aadhaarFromOcr === clientData.aadhaar_number,\n  \n  // Name similarity check (basic)\n  name_similarity_check: nameFromPan.toLowerCase().includes(clientData.client_name.toLowerCase().split(' ')[0]) ||\n                        nameFromAadhaar.toLowerCase().includes(clientData.client_name.toLowerCase().split(' ')[0]),\n  \n  ocr_validation_passed: false\n};\n\n// Overall OCR validation\nocrValidation.ocr_validation_passed = \n  ocrValidation.pan_ocr_match && \n  ocrValidation.aadhaar_ocr_match && \n  ocrValidation.name_similarity_check;\n\nreturn { json: ocrValidation };"
+      },
+      "id": "e384c4d7-c0e5-40b0-87d5-7361c606b9fd",
+      "name": "Process OCR Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        700,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.karza.in/v2/pan/pan-v2",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "karzaApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Karza-Key",
+              "value": "YOUR_KARZA_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "48debec3-daaa-47f4-afce-52b8a2ab8d7b",
+      "name": "PAN Verification API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1020,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Process PAN verification results\nconst panVerificationData = $json;\nconst clientData = $('Process OCR Results').first().json;\n\n// Extract verification results\nlet panValid = false;\nlet panName = '';\nlet panStatus = '';\n\ntry {\n  if (panVerificationData.result && panVerificationData.result.pan) {\n    panValid = panVerificationData.result.pan.valid === true;\n    panName = panVerificationData.result.pan.name || '';\n    panStatus = panVerificationData.result.pan.status || '';\n  }\n} catch (error) {\n  console.log('PAN verification parsing error:', error);\n}\n\nconst finalValidation = {\n  ...clientData,\n  \n  // PAN verification results\n  pan_api_valid: panValid,\n  pan_verified_name: panName,\n  pan_status: panStatus,\n  \n  // Final validation status\n  all_validations_passed: false,\n  onboarding_status: 'pending',\n  verification_timestamp: new Date().toISOString()\n};\n\n// Overall validation check\nfinalValidation.all_validations_passed = \n  finalValidation.basic_validation_passed && \n  finalValidation.ocr_validation_passed && \n  finalValidation.pan_api_valid;\n\n// Set onboarding status\nif (finalValidation.all_validations_passed) {\n  finalValidation.onboarding_status = 'verified';\n} else {\n  finalValidation.onboarding_status = 'requires_manual_review';\n}\n\nreturn { json: finalValidation };"
+      },
+      "id": "b23dad92-004e-4766-9896-8323e24127f5",
+      "name": "Final Validation Check",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        980,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1anraBp0zjsx16aqmNHan9zZU9WCIoy9pOj8NByd2iqA",
+          "mode": "list",
+          "cachedResultName": "Client Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anraBp0zjsx16aqmNHan9zZU9WCIoy9pOj8NByd2iqA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anraBp0zjsx16aqmNHan9zZU9WCIoy9pOj8NByd2iqA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company name",
+              "displayName": "Company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice number",
+              "displayName": "Invoice number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5de50b5e-fd1f-4c8e-a8df-bdc0bea18b57",
+      "name": "Store in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -380,
+        700
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TmCY0b83LBSLFiF5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.onboarding_status}}",
+              "value2": "verified"
+            }
+          ]
+        }
+      },
+      "id": "63d7e376-f95b-4e1f-aba4-f1af71354e07",
+      "name": "Check Final Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "7988407382",
+        "text": "✅ **New Client Successfully Onboarded**\n\n👤 **Name:** {{$json.client_name}}\n📱 **Mobile:** {{$json.mobile}}\n📧 **Email:** {{$json.email}}\n🆔 **PAN:** {{$json.pan_number}}\n📄 **Aadhaar:** {{$json.aadhaar_number}}\n\n**Status:** All verifications passed ✅\n**Workflow ID:** {{$json.workflow_id}}\n**Time:** {{$json.verification_timestamp}}\n\n*Client is ready for account setup.*",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "ac6cf5a0-e0b8-4019-b8d5-f339ddf9e379",
+      "name": "Telegram Success Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        160,
+        580
+      ],
+      "webhookId": "9fe93017-16dd-426b-a588-1312d5626499",
+      "credentials": {
+        "telegramApi": {
+          "id": "YCLuQg40lLrRtVjR",
+          "name": "n8n Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7988407382",
+        "text": "⚠️ **Client Requires Manual Review**\n\n👤 **Name:** {{$json.client_name}}\n📱 **Mobile:** {{$json.mobile}}\n📧 **Email:** {{$json.email}}\n🆔 **PAN:** {{$json.pan_number}}\n📄 **Aadhaar:** {{$json.aadhaar_number}}\n\n**Issues Found:**\n• Basic Validation: {{$json.basic_validation_passed ? '✅' : '❌'}}\n• OCR Validation: {{$json.ocr_validation_passed ? '✅' : '❌'}}\n• PAN API Validation: {{$json.pan_api_valid ? '✅' : '❌'}}\n\n**Workflow ID:** {{$json.workflow_id}}\n**Time:** {{$json.verification_timestamp}}\n\n*Please review manually in Google Sheets.*",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "13a0afac-accb-485d-9e0c-58b0cf3046d2",
+      "name": "Telegram Review Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        160,
+        880
+      ],
+      "webhookId": "5cdd4000-e313-4a09-835e-515d64d92d19",
+      "credentials": {
+        "telegramApi": {
+          "id": "YCLuQg40lLrRtVjR",
+          "name": "n8n Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"error\",\n  \"message\": \"Validation failed. Please check your inputs.\",\n  \"errors\": {\n    \"pan_format\": {{$json.pan_format_valid}},\n    \"aadhaar_format\": {{$json.aadhaar_format_valid}},\n    \"email_format\": {{$json.email_valid}},\n    \"mobile_format\": {{$json.mobile_valid}}\n  },\n  \"workflow_id\": \"{{$json.workflow_id}}\"\n}",
+        "options": {}
+      },
+      "id": "b596edb5-ad10-43af-96f7-d1150877c45c",
+      "name": "Validation Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        120,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"{{$json.onboarding_status}}\",\n  \"message\": \"{{$json.onboarding_status === 'verified' ? 'Client successfully onboarded and verified!' : 'Client submitted for manual review.'}}\",\n  \"client_name\": \"{{$json.client_name}}\",\n  \"workflow_id\": \"{{$json.workflow_id}}\",\n  \"all_validations_passed\": {{$json.all_validations_passed}},\n  \"timestamp\": \"{{$json.verification_timestamp}}\"\n}",
+        "options": {}
+      },
+      "id": "304a9cac-dca9-4d05-b7b7-db94ed93fa08",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        540,
+        720
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Client Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Client Inputs": {
+      "main": [
+        [
+          {
+            "node": "Validation Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Check": {
+      "main": [
+        [
+          {
+            "node": "Upload PAN to Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload Aadhaar to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validation Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload PAN to Drive": {
+      "main": [
+        [
+          {
+            "node": "OCR PAN Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Aadhaar to Drive": {
+      "main": [
+        [
+          {
+            "node": "OCR Aadhaar Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OCR PAN Extraction": {
+      "main": [
+        [
+          {
+            "node": "Process OCR Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OCR Aadhaar Extraction": {
+      "main": [
+        [
+          {
+            "node": "Process OCR Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process OCR Results": {
+      "main": [
+        [
+          {
+            "node": "PAN Verification API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PAN Verification API": {
+      "main": [
+        [
+          {
+            "node": "Final Validation Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Validation Check": {
+      "main": [
+        [
+          {
+            "node": "Store in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Check Final Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Status": {
+      "main": [
+        [
+          {
+            "node": "Telegram Success Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram Review Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Success Alert": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Review Alert": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eeec68f9-4854-4a56-b23c-5a49843e90ba",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "055cabbfae53a05c6fee3ccc381d1e722af6f6816e2a91c8bf47d31688c6cc27"
+  },
+  "id": "p4OpoQfNiwf6wQjT",
+  "tags": []
+}
