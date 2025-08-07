@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(210, 25%, 7.8431%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(210, 25%, 7.8431%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 25%, 7.8431%);
+  --primary: hsl(207, 72%, 36%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 25%, 7.8431%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(210, 25%, 45%);
+  --accent: hsl(211, 51%, 92%);
+  --accent-foreground: hsl(207, 72%, 36%);
+  --destructive: hsl(4, 85%, 58%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 16%, 88%);
+  --input: hsl(210, 16%, 96%);
+  --ring: hsl(207, 72%, 36%);
+  --success: hsl(123, 38%, 47%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(36, 95%, 50%);
+  --warning-foreground: hsl(0, 0%, 100%);
+  --error: hsl(4, 85%, 58%);
+  --error-foreground: hsl(0, 0%, 100%);
+  --surface: hsl(0, 0%, 100%);
+  --font-inter: 'Inter', sans-serif;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(200, 6.6667%, 91.1765%);
+  --card: hsl(228, 9.8039%, 10%);
+  --card-foreground: hsl(0, 0%, 85.0980%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(200, 6.6667%, 91.1765%);
+  --primary: hsl(207, 72%, 54%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(195, 15%, 94%);
+  --secondary-foreground: hsl(210, 25%, 7.8431%);
+  --muted: hsl(0, 0%, 9.4118%);
+  --muted-foreground: hsl(210, 3.3898%, 46.2745%);
+  --accent: hsl(206, 70%, 8%);
+  --accent-foreground: hsl(207, 72%, 54%);
+  --destructive: hsl(4, 85%, 58%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 5.2632%, 14.9020%);
+  --input: hsl(208, 28%, 18%);
+  --ring: hsl(207, 72%, 36%);
+  --success: hsl(123, 38%, 47%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(36, 95%, 50%);
+  --warning-foreground: hsl(0, 0%, 100%);
+  --error: hsl(4, 85%, 58%);
+  --error-foreground: hsl(0, 0%, 100%);
+  --surface: hsl(228, 9.8039%, 10%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: var(--font-inter);
+  }
+}
+
+@layer components {
+  .step-indicator.active .step-number {
+    @apply bg-primary text-white;
+  }
+  
+  .step-indicator.active .step-label {
+    @apply text-foreground font-medium;
+  }
+  
+  .step-indicator .step-number {
+    @apply bg-muted text-muted-foreground;
+  }
+  
+  .step-indicator .step-label {
+    @apply text-muted-foreground;
+  }
+}
