@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Client Onboarding Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1976D2',
+                        success: '#4CAF50',
+                        error: '#F44336',
+                        warning: '#FF9800',
+                        surface: '#FFFFFF',
+                        background: '#FAFAFA'
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-background font-inter text-gray-900">
+    <!-- @COMPONENT: Header [Navigation and branding] -->
+    <header class="bg-surface shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <h1 class="text-xl font-semibold text-gray-900">KYC Platform</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#onboarding" class="text-primary font-medium border-b-2 border-primary pb-1">Client Onboarding</a>
+                    <a href="#dashboard" class="text-gray-600 hover:text-primary transition-colors">Dashboard</a>
+                    <a href="#settings" class="text-gray-600 hover:text-primary transition-colors">Settings</a>
+                </nav>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-gray-100 hover:bg-gray-200 p-2 rounded-lg transition-colors">
+                        <i class="fas fa-bell text-gray-600"></i>
+                    </button>
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">AD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: ClientOnboardingInterface [Main onboarding workflow] -->
+        <div id="onboarding-section" class="space-y-8">
+            <!-- Progress Indicator -->
+            <div class="bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-2xl font-semibold mb-6">Client Onboarding Process</h2>
+                <div class="flex items-center justify-between mb-8">
+                    <!-- @STATE: currentStep:number = 1 -->
+                    <div class="flex items-center space-x-4 w-full">
+                        <div data-step="1" class="step-indicator active flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                            <span class="text-sm font-medium text-gray-900">Basic Info</span>
+                        </div>
+                        <div class="flex-1 h-1 bg-gray-200 mx-2">
+                            <div class="h-full bg-primary w-0 transition-all duration-500" data-progress="0"></div>
+                        </div>
+                        <div data-step="2" class="step-indicator flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                            <span class="text-sm font-medium text-gray-600">Documents</span>
+                        </div>
+                        <div class="flex-1 h-1 bg-gray-200 mx-2">
+                            <div class="h-full bg-primary w-0 transition-all duration-500" data-progress="0"></div>
+                        </div>
+                        <div data-step="3" class="step-indicator flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                            <span class="text-sm font-medium text-gray-600">Verification</span>
+                        </div>
+                        <div class="flex-1 h-1 bg-gray-200 mx-2">
+                            <div class="h-full bg-primary w-0 transition-all duration-500" data-progress="0"></div>
+                        </div>
+                        <div data-step="4" class="step-indicator flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">4</div>
+                            <span class="text-sm font-medium text-gray-600">Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Basic Information Form -->
+            <div id="step-1" class="step-content bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-user-circle text-primary mr-3"></i>
+                    Client Basic Information
+                </h3>
+                <form id="client-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                        <input data-bind="client_name" type="text" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Enter full name as per PAN">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                        <input data-bind="email" type="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="client@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number *</label>
+                        <input data-bind="mobile" type="tel" required pattern="[6-9][0-9]{9}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Enter 10-digit mobile number">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">PAN Number *</label>
+                        <input data-bind="pan_number" type="text" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent uppercase"
+                               placeholder="ABCDE1234F">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Aadhaar Number *</label>
+                        <input data-bind="aadhaar_number" type="text" required pattern="[0-9]{12}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Enter 12-digit Aadhaar number">
+                    </div>
+                </form>
+                <div class="mt-6 flex justify-end">
+                    <button data-event="click:nextStep" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Continue to Documents
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Document Upload -->
+            <div id="step-2" class="step-content hidden bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-file-upload text-primary mr-3"></i>
+                    Document Upload
+                </h3>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- PAN Document Upload -->
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-900">PAN Card Document</h4>
+                        <div data-implementation="File upload with drag-and-drop" 
+                             class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
+                             data-drop-zone="pan">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600 mb-2">Drag and drop your PAN card here</p>
+                            <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                            <input type="file" class="hidden" accept="image/*,.pdf" data-file-input="pan">
+                            <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm">Choose File</button>
+                        </div>
+                        <div data-file-preview="pan" class="hidden border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-file-image text-primary"></i>
+                                    <div>
+                                        <p class="font-medium text-sm" data-file-name="pan">filename.jpg</p>
+                                        <p class="text-xs text-gray-500" data-file-size="pan">2.4 MB</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div data-upload-status="pan" class="text-sm text-gray-600">Ready</div>
+                                    <button data-event="click:removeFile" data-file-type="pan" class="text-error hover:bg-red-50 p-1 rounded">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-3 bg-gray-200 rounded-full h-2">
+                                <div data-upload-progress="pan" class="bg-primary h-2 rounded-full w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aadhaar Document Upload -->
+                    <div class="space-y-4">
+                        <h4 class="font-medium text-gray-900">Aadhaar Card Document</h4>
+                        <div data-implementation="File upload with drag-and-drop" 
+                             class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
+                             data-drop-zone="aadhaar">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600 mb-2">Drag and drop your Aadhaar card here</p>
+                            <p class="text-sm text-gray-500 mb-4">or click to browse files</p>
+                            <input type="file" class="hidden" accept="image/*,.pdf" data-file-input="aadhaar">
+                            <button class="bg-primary text-white px-4 py-2 rounded-lg text-sm">Choose File</button>
+                        </div>
+                        <div data-file-preview="aadhaar" class="hidden border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-file-image text-primary"></i>
+                                    <div>
+                                        <p class="font-medium text-sm" data-file-name="aadhaar">filename.jpg</p>
+                                        <p class="text-xs text-gray-500" data-file-size="aadhaar">1.8 MB</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div data-upload-status="aadhaar" class="text-sm text-gray-600">Ready</div>
+                                    <button data-event="click:removeFile" data-file-type="aadhaar" class="text-error hover:bg-red-50 p-1 rounded">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-3 bg-gray-200 rounded-full h-2">
+                                <div data-upload-progress="aadhaar" class="bg-primary h-2 rounded-full w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-between">
+                    <button data-event="click:previousStep" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back
+                    </button>
+                    <button data-event="click:uploadDocuments" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        Upload & Verify Documents
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Verification Process -->
+            <div id="step-3" class="step-content hidden bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fas fa-search text-primary mr-3"></i>
+                    Document Verification
+                </h3>
+
+                <!-- Processing Status -->
+                <div class="space-y-6">
+                    <!-- Upload Status -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium mb-4">Document Upload Status</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">PAN Document to Google Drive</span>
+                                <div data-status="pan-upload" class="flex items-center space-x-2">
+                                    <i class="fas fa-spinner fa-spin text-warning"></i>
+                                    <span class="text-sm text-warning">Uploading...</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">Aadhaar Document to Google Drive</span>
+                                <div data-status="aadhaar-upload" class="flex items-center space-x-2">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span class="text-sm text-success">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Processing -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium mb-4">OCR Data Extraction</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">PAN OCR Processing (Mindee API)</span>
+                                <div data-status="pan-ocr" class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">Aadhaar OCR Processing (Mindee API)</span>
+                                <div data-status="aadhaar-ocr" class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Verification -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium mb-4">Government Database Verification</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">PAN Verification (Karza API)</span>
+                                <div data-status="pan-verification" class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Storage -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium mb-4">Data Storage</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">Client Data to Google Sheets</span>
+                                <div data-status="sheets-storage" class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">Telegram Notification</span>
+                                <div data-status="telegram-notification" class="flex items-center space-x-2">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OCR Results Display -->
+                <div data-ocr-results class="hidden mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-medium text-blue-900 mb-4">Extracted Information</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium">PAN from OCR:</span>
+                            <span data-bind="ocr.pan_number" class="ml-2 text-blue-800">ABCDE1234F</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Name from PAN:</span>
+                            <span data-bind="ocr.pan_name" class="ml-2 text-blue-800">JOHN DOE</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Aadhaar from OCR:</span>
+                            <span data-bind="ocr.aadhaar_number" class="ml-2 text-blue-800">1234 5678 9012</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Name from Aadhaar:</span>
+                            <span data-bind="ocr.aadhaar_name" class="ml-2 text-blue-800">John Doe</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center">
+                    <button data-event="click:retryVerification" class="hidden bg-warning text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium">
+                        <i class="fas fa-redo mr-2"></i>
+                        Retry Verification
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Completion -->
+            <div id="step-4" class="step-content hidden bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="text-center py-8">
+                    <div data-success-state class="hidden">
+                        <i class="fas fa-check-circle text-6xl text-success mb-4"></i>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Verification Successful!</h3>
+                        <p class="text-gray-600 mb-6">Client onboarding has been completed successfully. All documents have been verified and stored securely.</p>
+                        
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
+                            <h4 class="font-medium text-green-900 mb-3">Verification Summary</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span>Basic Validation:</span>
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>OCR Data Extraction:</span>
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Government Verification:</span>
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Data Storage:</span>
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-center space-x-4">
+                            <button data-event="click:startNewOnboarding" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                Start New Onboarding
+                            </button>
+                            <button data-event="click:viewDashboard" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                                View Dashboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div data-failure-state class="hidden">
+                        <i class="fas fa-exclamation-triangle text-6xl text-error mb-4"></i>
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-2">Manual Review Required</h3>
+                        <p class="text-gray-600 mb-6">Some verification steps could not be completed automatically. A manual review has been triggered.</p>
+                        
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
+                            <h4 class="font-medium text-red-900 mb-3">Issues Found</h4>
+                            <div class="space-y-2 text-sm">
+                                <div data-issue="basic-validation" class="flex justify-between hidden">
+                                    <span>Basic Validation Failed:</span>
+                                    <i class="fas fa-times text-error"></i>
+                                </div>
+                                <div data-issue="ocr-mismatch" class="flex justify-between hidden">
+                                    <span>OCR Data Mismatch:</span>
+                                    <i class="fas fa-times text-error"></i>
+                                </div>
+                                <div data-issue="api-verification" class="flex justify-between hidden">
+                                    <span>Government Verification Failed:</span>
+                                    <i class="fas fa-times text-error"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-center space-x-4">
+                            <button data-event="click:retryOnboarding" class="bg-warning text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors font-medium">
+                                Retry Process
+                            </button>
+                            <button data-event="click:contactSupport" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                                Contact Support
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ClientOnboardingInterface -->
+
+        <!-- @COMPONENT: AdminDashboard [Monitoring and management interface] -->
+        <div id="dashboard-section" class="hidden space-y-8">
+            <div class="bg-surface rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">KYC Dashboard</h2>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            Export Data
+                        </button>
+                        <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-filter mr-2"></i>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-blue-600 font-medium">Total Onboardings</p>
+                                <p class="text-2xl font-bold text-blue-900" data-mock="true">1,247</p>
+                            </div>
+                            <i class="fas fa-users text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-green-600 font-medium">Verified Today</p>
+                                <p class="text-2xl font-bold text-green-900" data-mock="true">23</p>
+                            </div>
+                            <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-red-600 font-medium">Pending Review</p>
+                                <p class="text-2xl font-bold text-red-900" data-mock="true">8</p>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-yellow-600 font-medium">Processing</p>
+                                <p class="text-2xl font-bold text-yellow-900" data-mock="true">5</p>
+                            </div>
+                            <i class="fas fa-spinner text-2xl text-yellow-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Onboardings Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">Client Name</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">Mobile</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">PAN</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">Timestamp</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- @MAP: recentOnboardings.map(client => ( -->
+                            <tr class="border-b border-gray-100 hover:bg-gray-50" data-mock="true">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-blue-800">RS</span>
+                                        </div>
+                                        <span class="font-medium">Rajesh Sharma</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">+91 98765 43210</td>
+                                <td class="py-3 px-4 font-mono text-sm">ABCDE1234F</td>
+                                <td class="py-3 px-4">
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Verified</span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600 text-sm">2024-01-15 14:30</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary hover:text-blue-700 text-sm">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50" data-mock="true">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-blue-800">PK</span>
+                                        </div>
+                                        <span class="font-medium">Priya Kumar</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">+91 87654 32109</td>
+                                <td class="py-3 px-4 font-mono text-sm">FGHIJ5678K</td>
+                                <td class="py-3 px-4">
+                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Processing</span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600 text-sm">2024-01-15 13:45</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary hover:text-blue-700 text-sm">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50" data-mock="true">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-blue-800">AS</span>
+                                        </div>
+                                        <span class="font-medium">Amit Singh</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">+91 76543 21098</td>
+                                <td class="py-3 px-4 font-mono text-sm">KLMNO9012P</td>
+                                <td class="py-3 px-4">
+                                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium">Review Required</span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600 text-sm">2024-01-15 12:20</td>
+                                <td class="py-3 px-4">
+                                    <button class="text-primary hover:text-blue-700 text-sm">
+                                        <i class="fas fa-eye mr-1"></i>View
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AdminDashboard -->
+    </div>
+
+    <!-- @COMPONENT: NotificationToast [Real-time feedback] -->
+    <div id="notification-container" class="fixed top-4 right-4 space-y-2 z-50"></div>
+    <!-- @END_COMPONENT: NotificationToast -->
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            let currentStep = 1;
+            let workflowId = '';
+            
+            // Navigation between steps
+            function nextStep() {
+                if (currentStep < 4) {
+                    document.getElementById(`step-${currentStep}`).classList.add('hidden');
+                    currentStep++;
+                    document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+                    updateProgressIndicator();
+                }
+            }
+            
+            function previousStep() {
+                if (currentStep > 1) {
+                    document.getElementById(`step-${currentStep}`).classList.add('hidden');
+                    currentStep--;
+                    document.getElementById(`step-${currentStep}`).classList.remove('hidden');
+                    updateProgressIndicator();
+                }
+            }
+            
+            function updateProgressIndicator() {
+                // Update step indicators and progress bars
+                document.querySelectorAll('.step-indicator').forEach((el, index) => {
+                    const stepNumber = index + 1;
+                    if (stepNumber <= currentStep) {
+                        el.classList.add('active');
+                        el.querySelector('div').className = 'w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-medium';
+                        el.querySelector('span').className = 'text-sm font-medium text-gray-900';
+                    } else {
+                        el.classList.remove('active');
+                        el.querySelector('div').className = 'w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium';
+                        el.querySelector('span').className = 'text-sm font-medium text-gray-600';
+                    }
+                });
+            }
+            
+            // File upload handling
+            function handleFileUpload(fileType, file) {
+                const preview = document.querySelector(`[data-file-preview="${fileType}"]`);
+                const dropZone = document.querySelector(`[data-drop-zone="${fileType}"]`);
+                
+                preview.classList.remove('hidden');
+                preview.querySelector(`[data-file-name="${fileType}"]`).textContent = file.name;
+                preview.querySelector(`[data-file-size="${fileType}"]`).textContent = formatFileSize(file.size);
+                
+                // Simulate upload progress
+                const progressBar = preview.querySelector(`[data-upload-progress="${fileType}"]`);
+                const statusEl = preview.querySelector(`[data-upload-status="${fileType}"]`);
+                
+                statusEl.textContent = 'Uploading...';
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 30;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        statusEl.textContent = 'Completed';
+                        statusEl.className = 'text-sm text-success';
+                    }
+                    progressBar.style.width = `${progress}%`;
+                }, 200);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Workflow simulation
+            function startVerificationProcess() {
+                nextStep(); // Move to verification step
+                
+                // Simulate workflow steps
+                const steps = [
+                    { element: '[data-status="pan-upload"]', delay: 1000 },
+                    { element: '[data-status="aadhaar-upload"]', delay: 2000 },
+                    { element: '[data-status="pan-ocr"]', delay: 3000 },
+                    { element: '[data-status="aadhaar-ocr"]', delay: 4000 },
+                    { element: '[data-status="pan-verification"]', delay: 5000 },
+                    { element: '[data-status="sheets-storage"]', delay: 6000 },
+                    { element: '[data-status="telegram-notification"]', delay: 6500 }
+                ];
+                
+                steps.forEach(step => {
+                    setTimeout(() => {
+                        const statusEl = document.querySelector(step.element);
+                        statusEl.innerHTML = '<i class="fas fa-check-circle text-success"></i><span class="text-sm text-success">Completed</span>';
+                        
+                        if (step.element === '[data-status="aadhaar-ocr"]') {
+                            // Show OCR results
+                            document.querySelector('[data-ocr-results]').classList.remove('hidden');
+                        }
+                        
+                        if (step.element === '[data-status="telegram-notification"]') {
+                            // Complete the process
+                            setTimeout(() => {
+                                nextStep();
+                                document.querySelector('[data-success-state]').classList.remove('hidden');
+                                showNotification('KYC verification completed successfully!', 'success');
+                            }, 1000);
+                        }
+                    }, step.delay);
+                });
+            }
+            
+            // Notification system
+            function showNotification(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                
+                const bgColor = type === 'success' ? 'bg-green-500' : 
+                               type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+                
+                notification.className = `${bgColor} text-white px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+                notification.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.remove('translate-x-full');
+                }, 100);
+                
+                // Auto remove
+                setTimeout(() => {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+            
+            // Event listeners
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-event="click:nextStep"]')) {
+                    e.preventDefault();
+                    nextStep();
+                }
+                
+                if (e.target.closest('[data-event="click:previousStep"]')) {
+                    e.preventDefault();
+                    previousStep();
+                }
+                
+                if (e.target.closest('[data-event="click:uploadDocuments"]')) {
+                    e.preventDefault();
+                    startVerificationProcess();
+                }
+                
+                if (e.target.closest('[data-event="click:startNewOnboarding"]')) {
+                    e.preventDefault();
+                    window.location.reload();
+                }
+                
+                if (e.target.closest('[data-event="click:viewDashboard"]')) {
+                    e.preventDefault();
+                    document.getElementById('onboarding-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                }
+                
+                // Navigation
+                if (e.target.closest('a[href="#onboarding"]')) {
+                    e.preventDefault();
+                    document.getElementById('dashboard-section').classList.add('hidden');
+                    document.getElementById('onboarding-section').classList.remove('hidden');
+                }
+                
+                if (e.target.closest('a[href="#dashboard"]')) {
+                    e.preventDefault();
+                    document.getElementById('onboarding-section').classList.add('hidden');
+                    document.getElementById('dashboard-section').classList.remove('hidden');
+                }
+            });
+            
+            // File upload event listeners
+            document.querySelectorAll('[data-drop-zone]').forEach(zone => {
+                const fileType = zone.dataset.dropZone;
+                const fileInput = zone.querySelector(`[data-file-input="${fileType}"]`);
+                
+                zone.addEventListener('click', () => {
+                    fileInput.click();
+                });
+                
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        handleFileUpload(fileType, e.target.files[0]);
+                    }
+                });
+                
+                // Drag and drop
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('border-primary', 'bg-blue-50');
+                });
+                
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('border-primary', 'bg-blue-50');
+                });
+                
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('border-primary', 'bg-blue-50');
+                    
+                    if (e.dataTransfer.files.length > 0) {
+                        handleFileUpload(fileType, e.dataTransfer.files[0]);
+                    }
+                });
+            });
+            
+            // Initialize
+            updateProgressIndicator();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: clientonboarder-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: VITE_API_BASE_URL
+        value: https://your-backend-url.com
+    build:
+      nodeVersion: 18.x
+    envVars:
+      - key: NODE_VERSION
+        value: 18.x
+    healthCheckPath: /
+    autoDeploy: true

@@ -1,0 +1,1009 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Client Onboarding System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af'
+                        },
+                        success: {
+                            50: '#ecfdf5',
+                            500: '#059669',
+                            600: '#047857',
+                            700: '#065f46'
+                        },
+                        error: {
+                            50: '#fef2f2',
+                            500: '#dc2626',
+                            600: '#b91c1c',
+                            700: '#991b1b'
+                        },
+                        warning: {
+                            50: '#fffbeb',
+                            500: '#d97706',
+                            600: '#c2410c',
+                            700: '#9a3412'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- @COMPONENT: AppHeader -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">KYC Onboarding</h1>
+                        <p class="text-sm text-gray-500">Client Verification System</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button data-view="admin" class="text-gray-600 hover:text-primary-500 transition-colors">
+                        <i class="fas fa-chart-bar text-lg"></i>
+                    </button>
+                    <button data-view="client" class="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>New Client
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: AppHeader -->
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- @COMPONENT: ClientOnboardingView -->
+        <div id="client-view" class="space-y-8">
+            <!-- Progress Indicator -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Onboarding Progress</h2>
+                    <span data-bind="workflowId" class="text-sm text-gray-500 font-mono">WF-12345678</span>
+                </div>
+                <!-- @STATE: currentStep:number = 1 -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                            1
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-900">Basic Info</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-200 rounded">
+                        <div class="h-1 bg-primary-500 rounded transition-all duration-500" style="width: 25%"></div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-medium">
+                            2
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500">Documents</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-200 rounded"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-medium">
+                            3
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500">Verification</span>
+                    </div>
+                    <div class="flex-1 h-1 bg-gray-200 rounded"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-sm font-medium">
+                            4
+                        </div>
+                        <span class="ml-2 text-sm text-gray-500">Complete</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Basic Information -->
+            <div id="step-1" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Client Information</h3>
+                    <p class="text-gray-600">Please provide accurate personal details for KYC verification</p>
+                </div>
+
+                <form id="client-form" class="space-y-6" data-implementation="Submit to webhook endpoint /kyc-onboard">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                            <input type="text" name="client_name" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Enter full name as per PAN card"
+                                data-validation="required|min:2">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" name="email" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Enter email address"
+                                data-validation="required|email">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+                            <input type="tel" name="mobile" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Enter 10-digit mobile number"
+                                pattern="[6-9]\d{9}"
+                                data-validation="required|mobile">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                            <input type="date" name="date_of_birth" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                data-validation="required|age:18">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">PAN Number</label>
+                            <input type="text" name="pan_number" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all uppercase"
+                                placeholder="ABCDE1234F"
+                                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                maxlength="10"
+                                data-validation="required|pan">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Aadhaar Number</label>
+                            <input type="text" name="aadhaar_number" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                placeholder="Enter 12-digit Aadhaar number"
+                                pattern="[0-9]{12}"
+                                maxlength="12"
+                                data-validation="required|aadhaar">
+                            <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                        <textarea name="address" rows="3" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            placeholder="Enter complete address"
+                            data-validation="required|min:10"></textarea>
+                        <div class="validation-message hidden mt-1 text-sm text-error-500"></div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="button" id="next-step-1" 
+                            class="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                            data-event="click:validateAndProceed">
+                            Continue to Documents
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Document Upload -->
+            <div id="step-2" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Document Upload</h3>
+                    <p class="text-gray-600">Upload clear images of your PAN card and Aadhaar card</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- PAN Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">PAN Card</label>
+                        <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+                            data-upload-type="pan">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                <p class="text-gray-600 mb-2">Drag and drop your PAN card here</p>
+                                <p class="text-sm text-gray-500">or click to browse</p>
+                                <input type="file" class="hidden" accept="image/*,.pdf" data-file-type="pan">
+                            </div>
+                            <div class="upload-success hidden">
+                                <i class="fas fa-check-circle text-4xl text-success-500 mb-4"></i>
+                                <p class="text-success-600 font-medium">PAN card uploaded successfully</p>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-500">
+                            Supported formats: JPG, PNG, PDF (Max 5MB)
+                        </div>
+                    </div>
+
+                    <!-- Aadhaar Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">Aadhaar Card</label>
+                        <div class="upload-zone border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+                            data-upload-type="aadhaar">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                                <p class="text-gray-600 mb-2">Drag and drop your Aadhaar card here</p>
+                                <p class="text-sm text-gray-500">or click to browse</p>
+                                <input type="file" class="hidden" accept="image/*,.pdf" data-file-type="aadhaar">
+                            </div>
+                            <div class="upload-success hidden">
+                                <i class="fas fa-check-circle text-4xl text-success-500 mb-4"></i>
+                                <p class="text-success-600 font-medium">Aadhaar card uploaded successfully</p>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-500">
+                            Supported formats: JPG, PNG, PDF (Max 5MB)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" class="text-gray-600 hover:text-gray-800 px-6 py-3 transition-colors"
+                        data-event="click:previousStep">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <button type="button" id="next-step-2" disabled
+                        class="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        data-event="click:uploadDocuments">
+                        Process Documents
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Verification Process -->
+            <div id="step-3" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Document Verification</h3>
+                    <p class="text-gray-600">We're processing your documents and verifying the information</p>
+                </div>
+
+                <!-- Verification Steps -->
+                <div class="space-y-6">
+                    <!-- Document Upload Status -->
+                    <div class="verification-step" data-step="upload">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 hidden loading"></i>
+                                    <i class="fas fa-check text-success-500 hidden success"></i>
+                                    <i class="fas fa-times text-error-500 hidden error"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Document Upload to Google Drive</h4>
+                                <p class="text-sm text-gray-500 status-text">Uploading documents...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Processing -->
+                    <div class="verification-step" data-step="ocr">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 hidden loading"></i>
+                                    <i class="fas fa-check text-success-500 hidden success"></i>
+                                    <i class="fas fa-times text-error-500 hidden error"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">OCR Data Extraction</h4>
+                                <p class="text-sm text-gray-500 status-text">Extracting information from documents...</p>
+                            </div>
+                        </div>
+                        <!-- OCR Results Display -->
+                        <div class="ml-12 mt-4 bg-gray-50 rounded-lg p-4 hidden ocr-results">
+                            <h5 class="text-sm font-medium text-gray-700 mb-2">Extracted Information</h5>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">PAN Number:</span>
+                                    <span class="ml-2 font-mono" data-bind="ocrResults.pan">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Name on PAN:</span>
+                                    <span class="ml-2" data-bind="ocrResults.panName">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Aadhaar Number:</span>
+                                    <span class="ml-2 font-mono" data-bind="ocrResults.aadhaar">-</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Name on Aadhaar:</span>
+                                    <span class="ml-2" data-bind="ocrResults.aadhaarName">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Verification -->
+                    <div class="verification-step" data-step="api">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 hidden loading"></i>
+                                    <i class="fas fa-check text-success-500 hidden success"></i>
+                                    <i class="fas fa-times text-error-500 hidden error"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Government Database Verification</h4>
+                                <p class="text-sm text-gray-500 status-text">Verifying with official databases...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Storage -->
+                    <div class="verification-step" data-step="storage">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 border-2 border-gray-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-spinner fa-spin text-gray-400 hidden loading"></i>
+                                    <i class="fas fa-check text-success-500 hidden success"></i>
+                                    <i class="fas fa-times text-error-500 hidden error"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900">Data Storage</h4>
+                                <p class="text-sm text-gray-500 status-text">Storing verified information...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-8">
+                    <button type="button" class="text-gray-600 hover:text-gray-800 px-6 py-3 transition-colors"
+                        data-event="click:previousStep">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <div class="verification-actions space-x-4">
+                        <button type="button" id="retry-verification" class="hidden text-warning-600 hover:text-warning-700 px-6 py-3 transition-colors"
+                            data-event="click:retryVerification">
+                            <i class="fas fa-redo mr-2"></i>Retry Verification
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Completion -->
+            <div id="step-4" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hidden">
+                <!-- Success State -->
+                <div id="success-state" class="text-center hidden">
+                    <div class="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-check text-2xl text-success-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Verification Complete!</h3>
+                    <p class="text-gray-600 mb-6">Your KYC has been successfully verified and your account is ready for use.</p>
+                    
+                    <div class="bg-success-50 border border-success-200 rounded-lg p-4 mb-6">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Workflow ID:</span>
+                                <span class="ml-2 font-mono text-success-700" data-bind="workflowId">WF-12345678</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Completion Time:</span>
+                                <span class="ml-2 text-success-700" data-bind="completionTime">2024-01-15 14:30:25</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                        data-event="click:startNewOnboarding">
+                        <i class="fas fa-plus mr-2"></i>Onboard Another Client
+                    </button>
+                </div>
+
+                <!-- Error State -->
+                <div id="error-state" class="text-center hidden">
+                    <div class="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-exclamation-triangle text-2xl text-error-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Verification Failed</h3>
+                    <p class="text-gray-600 mb-6">We encountered issues during the verification process. Please review and try again.</p>
+                    
+                    <div class="bg-error-50 border border-error-200 rounded-lg p-4 mb-6 text-left">
+                        <h4 class="font-medium text-error-800 mb-2">Issues Found:</h4>
+                        <ul class="space-y-1 text-sm text-error-700" data-bind="errorList">
+                            <!-- Error list will be populated dynamically -->
+                        </ul>
+                    </div>
+
+                    <div class="space-x-4">
+                        <button type="button" class="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                            data-event="click:retryFromStart">
+                            <i class="fas fa-redo mr-2"></i>Try Again
+                        </button>
+                        <button type="button" class="text-gray-600 hover:text-gray-800 px-6 py-3 transition-colors"
+                            data-event="click:contactSupport">
+                            <i class="fas fa-headset mr-2"></i>Contact Support
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Manual Review State -->
+                <div id="review-state" class="text-center hidden">
+                    <div class="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-clock text-2xl text-warning-600"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">Manual Review Required</h3>
+                    <p class="text-gray-600 mb-6">Your application requires manual review. Our team will contact you within 24 hours.</p>
+                    
+                    <div class="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-6">
+                        <div class="text-sm text-warning-800">
+                            <p class="mb-2"><strong>Reference ID:</strong> <span class="font-mono" data-bind="workflowId">WF-12345678</span></p>
+                            <p>Please keep this reference ID for future correspondence.</p>
+                        </div>
+                    </div>
+
+                    <button type="button" class="bg-primary-500 text-white px-8 py-3 rounded-lg hover:bg-primary-600 transition-colors font-medium"
+                        data-event="click:startNewOnboarding">
+                        <i class="fas fa-plus mr-2"></i>Onboard Another Client
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ClientOnboardingView -->
+
+        <!-- @COMPONENT: AdminDashboardView -->
+        <div id="admin-view" class="hidden space-y-8">
+            <!-- Dashboard Header -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-gray-900">Admin Dashboard</h2>
+                        <p class="text-gray-600">Monitor KYC onboarding workflows and client status</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="text-gray-600 hover:text-primary-500 transition-colors" data-event="click:refreshDashboard">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <option>Last 24 hours</option>
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-primary-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Total Applications</h3>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.total">247</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-success-600">
+                        <i class="fas fa-arrow-up mr-1"></i>12% from last week
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-success-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-success-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Verified</h3>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.verified">189</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-success-600">
+                        <i class="fas fa-arrow-up mr-1"></i>8% from last week
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-warning-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-warning-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Pending Review</h3>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.pending">23</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-warning-600">
+                        <i class="fas fa-arrow-up mr-1"></i>3 new today
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-error-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-times-circle text-error-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">Failed</h3>
+                            <p class="text-2xl font-semibold text-gray-900" data-bind="stats.failed">35</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-error-600">
+                        <i class="fas fa-arrow-down mr-1"></i>5% from last week
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Applications Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">Recent Applications</h3>
+                        <div class="flex items-center space-x-3">
+                            <input type="search" placeholder="Search applications..." 
+                                class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64">
+                            <button class="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors text-sm">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Workflow ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- @MAP: applications.map(app => ( -->
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-gray-600">RK</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Raj Kumar</div>
+                                            <div class="text-sm text-gray-500">raj.kumar@email.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                                    WF-20240115-001
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">
+                                        Verified
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    2 hours ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary-600 hover:text-primary-900 mr-3">View</button>
+                                    <button class="text-gray-600 hover:text-gray-900">Download</button>
+                                </td>
+                            </tr>
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-gray-600">SP</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Sita Patel</div>
+                                            <div class="text-sm text-gray-500">sita.patel@email.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                                    WF-20240115-002
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800">
+                                        Pending Review
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    4 hours ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary-600 hover:text-primary-900 mr-3">Review</button>
+                                    <button class="text-gray-600 hover:text-gray-900">View</button>
+                                </td>
+                            </tr>
+                            <tr data-mock="true">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-medium text-gray-600">AM</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Amit Mehta</div>
+                                            <div class="text-sm text-gray-500">amit.mehta@email.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                                    WF-20240115-003
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-error-100 text-error-800">
+                                        Failed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    6 hours ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-primary-600 hover:text-primary-900 mr-3">Retry</button>
+                                    <button class="text-gray-600 hover:text-gray-900">View</button>
+                                </td>
+                            </tr>
+                            <!-- @END_MAP )) -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-3 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Showing 1 to 10 of 247 applications
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">Previous</button>
+                            <button class="px-3 py-1 bg-primary-500 text-white rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AdminDashboardView -->
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Toasts will be dynamically inserted here -->
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4">
+            <div class="text-center">
+                <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Processing</h3>
+                <p class="text-gray-600" id="loading-message">Please wait while we process your request...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // TODO: Implement state management for the application
+            let currentStep = 1;
+            let currentView = 'client';
+            let uploadedFiles = {};
+            let verificationStatus = {};
+
+            // View Management
+            function switchView(view) {
+                currentView = view;
+                document.getElementById('client-view').classList.toggle('hidden', view !== 'client');
+                document.getElementById('admin-view').classList.toggle('hidden', view !== 'admin');
+            }
+
+            // Step Management
+            function showStep(step) {
+                for (let i = 1; i <= 4; i++) {
+                    const stepElement = document.getElementById(`step-${i}`);
+                    if (stepElement) {
+                        stepElement.classList.toggle('hidden', i !== step);
+                    }
+                }
+                updateProgressIndicator(step);
+            }
+
+            function updateProgressIndicator(step) {
+                const progressBar = document.querySelector('.h-1.bg-primary-500');
+                const percentage = (step - 1) * 33.33;
+                progressBar.style.width = `${percentage}%`;
+
+                // Update step indicators
+                for (let i = 1; i <= 4; i++) {
+                    const indicator = document.querySelector(`.w-8.h-8:nth-child(${i * 2 - 1})`);
+                    if (indicator) {
+                        if (i <= step) {
+                            indicator.classList.remove('bg-gray-200', 'text-gray-500');
+                            indicator.classList.add('bg-primary-500', 'text-white');
+                        } else {
+                            indicator.classList.add('bg-gray-200', 'text-gray-500');
+                            indicator.classList.remove('bg-primary-500', 'text-white');
+                        }
+                    }
+                }
+            }
+
+            // Form Validation
+            function validateForm() {
+                const form = document.getElementById('client-form');
+                let isValid = true;
+                const errors = {};
+
+                // TODO: Implement comprehensive validation logic
+                // PAN validation: [A-Z]{5}[0-9]{4}[A-Z]{1}
+                // Aadhaar validation: [0-9]{12}
+                // Email validation
+                // Mobile validation: [6-9]\d{9}
+
+                return { isValid, errors };
+            }
+
+            // File Upload Handling
+            function setupFileUpload() {
+                const uploadZones = document.querySelectorAll('.upload-zone');
+                
+                uploadZones.forEach(zone => {
+                    const input = zone.querySelector('input[type="file"]');
+                    const uploadType = zone.dataset.uploadType;
+
+                    zone.addEventListener('click', () => input.click());
+                    
+                    zone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        zone.classList.add('border-primary-400');
+                    });
+
+                    zone.addEventListener('dragleave', () => {
+                        zone.classList.remove('border-primary-400');
+                    });
+
+                    zone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        zone.classList.remove('border-primary-400');
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            handleFileUpload(files[0], uploadType, zone);
+                        }
+                    });
+
+                    input.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            handleFileUpload(e.target.files[0], uploadType, zone);
+                        }
+                    });
+                });
+            }
+
+            function handleFileUpload(file, type, zone) {
+                // TODO: Implement file upload to Google Drive via n8n workflow
+                console.log(`Uploading ${type} file:`, file.name);
+                
+                // Show loading state
+                showLoadingOverlay(`Uploading ${type} document...`);
+                
+                // Simulate upload process
+                setTimeout(() => {
+                    uploadedFiles[type] = {
+                        file: file,
+                        url: `https://drive.google.com/file/sample-${type}-url`,
+                        uploaded: true
+                    };
+                    
+                    // Update UI
+                    zone.querySelector('.upload-placeholder').classList.add('hidden');
+                    zone.querySelector('.upload-success').classList.remove('hidden');
+                    
+                    checkUploadCompletion();
+                    hideLoadingOverlay();
+                }, 2000);
+            }
+
+            function checkUploadCompletion() {
+                const panUploaded = uploadedFiles.pan && uploadedFiles.pan.uploaded;
+                const aadhaarUploaded = uploadedFiles.aadhaar && uploadedFiles.aadhaar.uploaded;
+                
+                const nextButton = document.getElementById('next-step-2');
+                if (panUploaded && aadhaarUploaded) {
+                    nextButton.disabled = false;
+                    nextButton.classList.remove('disabled:bg-gray-300', 'disabled:cursor-not-allowed');
+                }
+            }
+
+            // Verification Process
+            function startVerification() {
+                showStep(3);
+                
+                const steps = ['upload', 'ocr', 'api', 'storage'];
+                let currentStepIndex = 0;
+
+                function processNextStep() {
+                    if (currentStepIndex < steps.length) {
+                        const stepName = steps[currentStepIndex];
+                        const stepElement = document.querySelector(`[data-step="${stepName}"]`);
+                        
+                        // Show loading
+                        stepElement.querySelector('.loading').classList.remove('hidden');
+                        
+                        // TODO: Make actual API calls to n8n workflow endpoints
+                        // Simulate processing time
+                        setTimeout(() => {
+                            stepElement.querySelector('.loading').classList.add('hidden');
+                            stepElement.querySelector('.success').classList.remove('hidden');
+                            stepElement.querySelector('.status-text').textContent = getSuccessMessage(stepName);
+                            
+                            if (stepName === 'ocr') {
+                                // Show OCR results
+                                stepElement.querySelector('.ocr-results').classList.remove('hidden');
+                                // TODO: Populate with actual OCR data from Mindee API
+                            }
+                            
+                            currentStepIndex++;
+                            if (currentStepIndex < steps.length) {
+                                setTimeout(processNextStep, 1000);
+                            } else {
+                                // Verification complete
+                                setTimeout(() => {
+                                    showCompletionState('success');
+                                }, 2000);
+                            }
+                        }, 3000);
+                    }
+                }
+                
+                processNextStep();
+            }
+
+            function getSuccessMessage(step) {
+                const messages = {
+                    upload: 'Documents uploaded to Google Drive successfully',
+                    ocr: 'Information extracted using OCR technology',
+                    api: 'Verified with government databases',
+                    storage: 'Data stored in Google Sheets'
+                };
+                return messages[step];
+            }
+
+            function showCompletionState(state) {
+                showStep(4);
+                
+                // Hide all states first
+                document.getElementById('success-state').classList.add('hidden');
+                document.getElementById('error-state').classList.add('hidden');
+                document.getElementById('review-state').classList.add('hidden');
+                
+                // Show appropriate state
+                document.getElementById(`${state}-state`).classList.remove('hidden');
+                
+                // TODO: Send Telegram notification based on state
+            }
+
+            // Loading Overlay
+            function showLoadingOverlay(message) {
+                document.getElementById('loading-message').textContent = message;
+                document.getElementById('loading-overlay').classList.remove('hidden');
+            }
+
+            function hideLoadingOverlay() {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+
+            // Toast Notifications
+            function showToast(message, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                
+                const bgColor = {
+                    success: 'bg-success-500',
+                    error: 'bg-error-500',
+                    warning: 'bg-warning-500',
+                    info: 'bg-primary-500'
+                }[type];
+                
+                toast.className = `${bgColor} text-white px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0`;
+                toast.innerHTML = `
+                    <div class="flex items-center">
+                        <span>${message}</span>
+                        <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(toast);
+                
+                // Animate in
+                setTimeout(() => {
+                    toast.classList.remove('translate-x-full', 'opacity-0');
+                }, 100);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    toast.classList.add('translate-x-full', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
+            }
+
+            // Event Listeners
+            document.addEventListener('DOMContentLoaded', function() {
+                setupFileUpload();
+                
+                // View switching
+                document.querySelector('[data-view="admin"]').addEventListener('click', () => switchView('admin'));
+                document.querySelector('[data-view="client"]').addEventListener('click', () => switchView('client'));
+                
+                // Step navigation
+                document.getElementById('next-step-1').addEventListener('click', function() {
+                    const validation = validateForm();
+                    if (validation.isValid) {
+                        showStep(2);
+                        currentStep = 2;
+                    } else {
+                        showToast('Please fix the validation errors', 'error');
+                    }
+                });
+                
+                document.getElementById('next-step-2').addEventListener('click', function() {
+                    if (!this.disabled) {
+                        startVerification();
+                        currentStep = 3;
+                    }
+                });
+                
+                // Initialize first step
+                showStep(1);
+                
+                // TODO: Set up WebSocket connection for real-time updates
+                // TODO: Implement retry mechanisms for failed operations
+                // TODO: Add comprehensive error handling for all API calls
+            });
+
+            // API Integration Functions
+            async function submitToWebhook(formData) {
+                try {
+                    const response = await fetch('/kyc-onboard', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    return result;
+                } catch (error) {
+                    console.error('Webhook submission failed:', error);
+                    throw error;
+                }
+            }
+
+            // Expose functions for development/debugging
+            window.KYCApp = {
+                switchView,
+                showStep,
+                showToast,
+                startVerification,
+                submitToWebhook
+            };
+        })();
+    </script>
+</body>
+</html>

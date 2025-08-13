@@ -1,6 +1,7 @@
 import { type DocumentOnlyInfo, type OnboardingStatus, type KycOnboarding } from "@shared/schema";
 
-const API_BASE = "";
+// Use environment variable for API base URL with fallback to relative path
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export interface ApiResponse<T = any> {
   success: boolean;
