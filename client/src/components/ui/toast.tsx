@@ -38,10 +38,15 @@ const toastVariants = cva(
   }
 )
 
+// Define the Toast component props
+type ToastComponentProps = React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> & 
+  VariantProps<typeof toastVariants> & {
+    action?: React.ReactNode
+  }
+
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
-  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
+  ToastComponentProps
 >(({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
@@ -110,13 +115,16 @@ const ToastDescription = React.forwardRef<
 ))
 ToastDescription.displayName = ToastPrimitives.Description.displayName
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
+// Export types for the toast hook
+export type ToastProps = React.ComponentProps<typeof Toast> & {
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: React.ReactNode
+}
 
-type ToastActionElement = React.ReactElement<typeof ToastAction>
+export type ToastActionElement = React.ReactElement<typeof ToastAction>
 
 export {
-  type ToastProps,
-  type ToastActionElement,
   ToastProvider,
   ToastViewport,
   Toast,
