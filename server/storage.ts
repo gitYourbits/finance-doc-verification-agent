@@ -24,10 +24,23 @@ export class MemStorage implements IStorage {
     const now = new Date();
     
     const onboarding: KycOnboarding = {
-      ...insertOnboarding,
       id,
       workflowId,
+      clientName: insertOnboarding.clientName || '',
+      email: insertOnboarding.email || '',
+      mobile: insertOnboarding.mobile || '',
+      panNumber: insertOnboarding.panNumber || '',
+      aadhaarNumber: insertOnboarding.aadhaarNumber || '',
+      panFileUrl: insertOnboarding.panFileUrl || null,
+      aadhaarFileUrl: insertOnboarding.aadhaarFileUrl || null,
       status: insertOnboarding.status || 'pending',
+      basicValidationPassed: insertOnboarding.basicValidationPassed || false,
+      ocrValidationPassed: insertOnboarding.ocrValidationPassed || false,
+      panApiValid: insertOnboarding.panApiValid || false,
+      allValidationsPassed: insertOnboarding.allValidationsPassed || false,
+      ocrData: insertOnboarding.ocrData || null,
+      verificationData: insertOnboarding.verificationData || null,
+      errorDetails: insertOnboarding.errorDetails || null,
       createdAt: now,
       updatedAt: now,
     };

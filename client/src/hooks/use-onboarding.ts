@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { api, type StatusResponse } from "@/lib/api";
 import { type DocumentOnlyInfo, type OnboardingStatus } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 
@@ -53,13 +53,14 @@ export function useOnboarding() {
   });
 
   // Get onboarding status with polling
-  const statusQuery = useQuery({
+  const statusQuery = useQuery<StatusResponse>({
     queryKey: ["/api/onboarding/status", workflowId],
-    queryFn: () => api.getOnboardingStatus(workflowId),
+    queryFn: () => api.getOnboardingStatus(workflowId || ''), // Ensure workflowId is always a string
     enabled: !!workflowId && currentStep >= 2,
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Stop polling if verification is complete or failed
-      if (data?.data?.status?.status === "verified" || data?.data?.status?.status === "failed" || data?.data?.status?.status === "review_required") {
+      const status = query.state.data?.status?.status;
+      if (status === "verified" || status === "failed" || status === "review_required") {
         return false;
       }
       return 3000; // Poll every 3 seconds while processing
